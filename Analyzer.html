@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YOLOv8 Analyzer | AI Facial Emotion Recognition System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: radial-gradient(circle at top right, #0f172a, #020617);
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
+
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 1.5rem;
+        }
+
+        /* YOLOv8 Scanning Effect */
+        .yolo-scanner {
+            position: relative;
+            overflow: hidden;
+            border: 2px solid rgba(34, 211, 238, 0.3);
+        }
+
+        .yolo-scanner::after {
+            content: '';
+            position: absolute;
+            top: -100%;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #22d3ee;
+            box-shadow: 0 0 20px #22d3ee;
+            animation: yolo-scan 2.5s infinite linear;
+            z-index: 20;
+        }
+
+        @keyframes yolo-scan {
+            0% { top: 0%; }
+            100% { top: 100%; }
+        }
+
+        /* Bounding Box Simulation */
+        .bounding-box {
+            position: absolute;
+            border: 2px solid #22d3ee;
+            width: 60%;
+            height: 60%;
+            top: 20%;
+            left: 20%;
+            display: none;
+            z-index: 15;
+        }
+
+        .bounding-box::before {
+            content: 'YOLOv8: Face 98.4%';
+            position: absolute;
+            top: -25px;
+            left: -2px;
+            background: #22d3ee;
+            color: black;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 2px 8px;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <header class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
+        <div>
+            <h1 class="text-3xl md:text-4xl font-black tracking-tighter text-cyan-400 uppercase leading-none">
+                AI Facial Emotion <span class="text-white">Recognition System</span>
+            </h1>
+            <p class="text-[10px] text-gray-500 font-mono uppercase tracking-[0.5em] mt-2">
+                Unified Intelligence Framework // YOLOv8 + NLP Integration
+            </p>
+        </div>
+        <a href="index.html" class="px-6 py-2 glass-panel text-xs font-bold uppercase tracking-widest border border-white/10 hover:bg-cyan-500 hover:text-black transition-all">
+            ← Dashboard Home
+        </a>
+    </header>
+
+    <main class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <div class="lg:col-span-5 space-y-6">
+            <div class="glass-panel p-6">
+                <div class="flex gap-6 mb-6">
+                    <button id="cam-tab" class="text-cyan-400 border-b-2 border-cyan-400 pb-3 text-xs font-black uppercase tracking-widest">Webcam Feed</button>
+                    <button id="upload-tab" class="text-gray-500 pb-3 text-xs font-black uppercase tracking-widest hover:text-white transition">Image Upload</button>
+                </div>
+
+                <div id="input-container" class="yolo-scanner aspect-square bg-black/60 rounded-3xl flex items-center justify-center relative">
+                    <video id="webcam" autoplay playsinline class="w-full h-full object-cover rounded-3xl hidden transform -scale-x-100"></video>
+                    <div id="box-ui" class="bounding-box"></div>
+                    
+                    <div id="upload-ui" class="hidden text-center p-8">
+                        <div class="text-5xl mb-4 opacity-30">📁</div>
+                        <p class="text-gray-400 text-sm mb-4">Select image for YOLOv8 processing</p>
+                        <button onclick="document.getElementById('file-input').click()" class="px-8 py-3 bg-cyan-500/10 border border-cyan-500/30 rounded-xl text-xs font-bold text-cyan-400 hover:bg-cyan-500 hover:text-black transition">Browse System</button>
+                        <input type="file" id="file-input" class="hidden" accept="image/*">
+                    </div>
+
+                    <p id="placeholder" class="text-gray-600 font-mono text-[10px] uppercase tracking-[0.3em] animate-pulse">Waiting for Stream...</p>
+                </div>
+
+                <div class="mt-8">
+                    <button id="action-btn" class="w-full bg-cyan-500 hover:bg-cyan-400 text-black font-black py-5 rounded-2xl uppercase tracking-widest shadow-xl shadow-cyan-500/20 transition-all active:scale-95">
+                        Run Integrated Diagnostic
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="lg:col-span-7 space-y-6">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="glass-panel p-6 border-l-4 border-cyan-500">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-[9px] font-black text-cyan-500 uppercase tracking-widest">Model A: Facial Recognition</p>
+                            <h3 class="text-xl font-bold text-white">YOLOv8 Core</h3>
+                        </div>
+                        <span class="text-[10px] bg-cyan-500/20 text-cyan-400 px-2 py-1 rounded">Active</span>
+                    </div>
+                    <div class="mt-6 py-4 bg-black/40 rounded-2xl border border-white/5 text-center">
+                        <span id="m1-res" class="text-2xl font-black text-gray-700 italic">--</span>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-6 border-l-4 border-purple-500">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-[9px] font-black text-purple-500 uppercase tracking-widest">Model B: Context Analysis</p>
+                            <h3 class="text-xl font-bold text-white">Text-Based NLP</h3>
+                        </div>
+                        <span class="text-[10px] bg-purple-500/20 text-purple-400 px-2 py-1 rounded">Active</span>
+                    </div>
+                    <div class="mt-6 py-4 bg-black/40 rounded-2xl border border-white/5 text-center">
+                        <span id="m2-res" class="text-2xl font-black text-gray-700 italic">--</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-panel p-8 relative overflow-hidden group">
+                <div class="absolute -top-10 -right-10 w-40 h-40 bg-cyan-500/5 rounded-full blur-3xl transition-all group-hover:bg-cyan-500/10"></div>
+                
+                <h3 class="text-[10px] font-black text-gray-500 uppercase tracking-[0.8em] mb-10">Combined System Decision</h3>
+                
+                <div class="flex flex-col md:flex-row items-center gap-12">
+                    <div id="final-emoji" class="text-9xl grayscale opacity-10 transition-all duration-1000">🤖</div>
+                    <div class="flex-1 text-center md:text-left">
+                        <div id="final-label" class="text-5xl font-black mb-4 tracking-tighter">IDLE</div>
+                        <p id="final-suggestion" class="text-gray-400 leading-relaxed font-light text-lg italic border-l-2 border-white/10 pl-4">
+                            Please initiate analysis to synchronize YOLOv8 vision data with textual behavioral context.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="mt-12 grid grid-cols-3 gap-8 border-t border-white/5 pt-8">
+                    <div>
+                        <p class="text-[9px] text-gray-500 uppercase font-black tracking-widest mb-1">Model Confidence</p>
+                        <div class="text-2xl font-bold text-cyan-400" id="conf-val">0.0%</div>
+                    </div>
+                    <div>
+                        <p class="text-[9px] text-gray-500 uppercase font-black tracking-widest mb-1">Processing Time</p>
+                        <div class="text-2xl font-bold text-white" id="proc-time">--</div>
+                    </div>
+                    <div>
+                        <p class="text-[9px] text-gray-500 uppercase font-black tracking-widest mb-1">Sync Status</p>
+                        <div class="text-2xl font-bold text-green-500">Standby</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        const video = document.getElementById('webcam');
+        const uploadUI = document.getElementById('upload-ui');
+        const placeholder = document.getElementById('placeholder');
+        const boxUI = document.getElementById('box-ui');
+        
+        // Tab Management
+        document.getElementById('cam-tab').addEventListener('click', async () => {
+            uploadUI.classList.add('hidden');
+            placeholder.classList.add('hidden');
+            video.classList.remove('hidden');
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+            } catch (e) { alert("Enable camera for YOLOv8 feed"); }
+        });
+
+        document.getElementById('upload-tab').addEventListener('click', () => {
+            video.classList.add('hidden');
+            placeholder.classList.add('hidden');
+            boxUI.style.display = 'none';
+            uploadUI.classList.remove('hidden');
+        });
+
+        // YOLOv8 + Text Simulation Analysis
+        document.getElementById('action-btn').addEventListener('click', () => {
+            // Show Bounding Box
+            if(!video.classList.contains('hidden')) boxUI.style.display = 'block';
+
+            // YOLOv8 Result
+            const m1 = document.getElementById('m1-res');
+            m1.innerText = "SURPRISE (96%)";
+            m1.classList.remove('text-gray-700');
+            m1.classList.add('text-cyan-400');
+
+            // Text-Based Result
+            const m2 = document.getElementById('m2-res');
+            m2.innerText = "UNCERTAIN (74%)";
+            m2.classList.remove('text-gray-700');
+            m2.classList.add('text-purple-400');
+
+            // Combined Logic Simulation
+            setTimeout(() => {
+                document.getElementById('final-emoji').innerText = "😲";
+                document.getElementById('final-emoji').classList.remove('grayscale', 'opacity-10');
+                document.getElementById('final-label').innerText = "SURPRISED";
+                document.getElementById('conf-val').innerText = "94.2%";
+                document.getElementById('proc-time').innerText = "12ms";
+                document.getElementById('final-suggestion').innerHTML = "<b>Action Plan:</b> High surprise detected via YOLOv8. Context suggests a sudden event. Recommendation: Take a deep breath and reassess the situation for 30 seconds.";
+            }, 800);
+        });
+    </script>
+</body>
+</html>
