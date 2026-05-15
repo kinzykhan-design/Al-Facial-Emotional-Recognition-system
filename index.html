@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Facial Emotion Recognition System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #020617;
+            margin: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+            color: white;
+        }
+
+        /* AI Head/Neural Background */
+        .bg-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(2, 6, 23, 0.7), rgba(2, 6, 23, 0.85)), 
+                        url('assets/images/ai\ background\ image\ 6.jpg');
+            background-size: cover;
+            background-position: fixed;
+            z-index: -1;
+        }
+
+        /* Glassmorphism Navigation */
+        nav {
+            backdrop-filter: blur(15px);
+            background: rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* 3D Carousel Styling */
+        .carousel-container {
+            perspective: 1200px;
+            height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .carousel {
+            position: relative;
+            width: 200px;
+            height: 280px;
+            transform-style: preserve-3d;
+            transition: transform 1s cubic-bezier(0.25, 0.1, 0.25, 1);
+        }
+
+        .carousel-item {
+            position: absolute;
+            width: 190px;
+            height: 250px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            transition: all 0.5s ease;
+            backface-visibility: hidden;
+        }
+
+        .carousel-item:hover {
+            border-color: #00f2ff;
+            box-shadow: 0 0 40px rgba(0, 242, 255, 0.5);
+            transform: scale(1.1) rotateX(5deg);
+        }
+
+        .emoji-box {
+            font-size: 60px;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 0 10px rgba(0, 242, 255, 0.4));
+        }
+
+        /* Neon Glow Button */
+        .glow-btn {
+            background: linear-gradient(90deg, #00f2ff, #7000ff);
+            transition: 0.4s;
+            box-shadow: 0 0 20px rgba(112, 0, 255, 0.5);
+        }
+
+        .glow-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 45px rgba(0, 242, 255, 0.8);
+        }
+
+        .brand-text {
+            background: linear-gradient(to bottom, #ffffff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Account Toggle Styling */
+        .account-dropdown {
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            transform-origin: top right;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        .account-dropdown.hidden {
+            display: none;
+            transform: scale(0.95) opacity(0);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-overlay"></div>
+
+    <nav class="flex justify-between items-center px-12 py-6 fixed top-0 w-full z-50">
+        <div class="text-2xl font-black tracking-tighter">
+            <span class="text-cyan-400">AI </span> FACIAL EMOTION RECOGNITION SYSTEM
+        </div>
+        
+        <div class="flex items-center gap-10">
+            <div class="hidden md:flex space-x-12 text-xs font-bold uppercase tracking-[0.2em]">
+                <a href="index.html" class="text-cyan-400 border-b border-cyan-400 pb-1">Home</a>
+                <a href="analyzer.html" class="text-gray-400 hover:text-white transition">Analyzer</a>
+                <a href="history.html" class="text-gray-400 hover:text-white transition">History</a>
+                <a href="about.html" class="text-gray-400 hover:text-white transition">About</a>
+            </div>
+
+            <!-- Account Toggle Menu -->
+            <div class="relative">
+                <button id="accBtn" class="flex items-center gap-3 p-1 pr-4 rounded-full border border-white/10 hover:bg-white/5 transition">
+                    <div class="h-8 w-8 rounded-full bg-gradient-to-tr from-cyan-400 to-purple-600 flex items-center justify-center font-black text-[10px]">
+                        USER
+                    </div>
+                    <span class="text-[10px] font-black uppercase tracking-widest">Account</span>
+                </button>
+
+                <!-- Dropdown -->
+                <div id="accMenu" class="hidden absolute right-0 mt-4 w-52 account-dropdown rounded-2xl overflow-hidden py-2">
+                    <div class="px-4 py-3 border-b border-white/5 mb-2">
+                        <p class="text-[9px] text-gray-500 uppercase font-black tracking-widest">Signed in as</p>
+                        <p class="text-[11px] font-bold text-cyan-400 truncate">user@bscs7.ai</p>
+                    </div>
+                    <a href="login.html" class="block px-4 py-2 text-[11px] font-bold text-gray-300 hover:bg-white/5 hover:text-cyan-400 transition">Login</a>
+                    <a href="signup.html" class="block px-4 py-2 text-[11px] font-bold text-gray-300 hover:bg-white/5 hover:text-cyan-400 transition">Create Account</a>
+                    <div class="my-2 border-t border-white/5"></div>
+                    <button class="w-full text-left px-4 py-2 text-[11px] font-bold text-red-500 hover:bg-red-500/10 transition">
+                        Delete Account
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex flex-col items-center justify-center min-h-screen pt-20 px-4">
+        <div class="text-center z-10 mb-8">
+            <h1 class="text-4xl md:text-7xl font-black mb-4 brand-text">
+                AI Facial Emotion <br> <span class="text-cyan-400 tracking-tight">Recognition System</span>
+            </h1>
+            <p class="text-gray-400 max-w-xl mx-auto text-lg font-light italic">
+                "Bridging the gap between human feelings and digital response."
+            </p>
+        </div>
+
+        <div class="carousel-container">
+            <div class="carousel" id="carousel"></div>
+        </div>
+
+        <div class="mt-12 text-center z-10">
+            <a href="analyzer.html" class="inline-block glow-btn px-14 py-5 rounded-2xl font-black text-xl uppercase tracking-widest text-white no-underline">
+                Launch Analyzer
+            </a>
+            <p class="mt-6 text-[10px] text-gray-500 font-bold uppercase tracking-[0.4em]">
+                7 Core Emotions Integrated • 2026-27 AI Model
+            </p>
+        </div>
+    </main>
+
+    <script>
+        // Account Toggle Script
+        const accBtn = document.getElementById('accBtn');
+        const accMenu = document.getElementById('accMenu');
+
+        accBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            accMenu.classList.toggle('hidden');
+        });
+
+        document.addEventListener('click', () => {
+            accMenu.classList.add('hidden');
+        });
+
+        // 7 emotions logic
+        const emotions = [
+            { name: 'Happy', emoji: '😊' },
+            { name: 'Sad', emoji: '😢' },
+            { name: 'Fear', emoji: '😨' },
+            { name: 'Surprise', emoji: '😲' },
+            { name: 'Angry', emoji: '😠' },
+            { name: 'Disgust', emoji: '🤢' },
+            { name: 'Neutral', emoji: '😐' }
+        ];
+
+        const carousel = document.getElementById('carousel');
+        const total = emotions.length;
+        const radius = 420; 
+        let currentRotation = 0;
+
+        emotions.forEach((item, index) => {
+            const div = document.createElement('div');
+            div.className = 'carousel-item';
+            const angle = (index / total) * 360;
+            div.style.transform = `rotateY(${angle}deg) translateZ(${radius}px)`;
+            
+            div.innerHTML = `
+                <div class="emoji-box">${item.emoji}</div>
+                <div class="text-md font-bold tracking-widest text-white uppercase">${item.name}</div>
+                <div class="mt-3 h-1 w-8 bg-cyan-500 rounded-full"></div>
+            `;
+            carousel.appendChild(div);
+        });
+
+        function rotateCarousel() {
+            currentRotation -= 0.3; 
+            carousel.style.transform = `rotateY(${currentRotation}deg)`;
+            requestAnimationFrame(rotateCarousel);
+        }
+
+        rotateCarousel();
+    </script>
+</body>
+</html>

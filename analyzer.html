@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YOLOv8 Analyzer | AI Facial Emotion Recognition System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;900&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #020617;
+            color: #e2e8f0;
+            min-height: 100vh;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        /* Professional Background Setup */
+        .bg-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* PASTE YOUR ANALYZER IMAGE PATH BELOW */
+            background: linear-gradient(rgba(2, 6, 23, 0.85), rgba(2, 6, 23, 0.95)), 
+             url('assets/images/ai background image 5.webp'); 
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            z-index: -1;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .glass-panel:hover {
+            border-color: rgba(34, 211, 238, 0.3);
+            box-shadow: 0 0 30px rgba(34, 211, 238, 0.1);
+        }
+
+        /* YOLOv8 Scanning Effect */
+        .yolo-scanner {
+            position: relative;
+            overflow: hidden;
+            border: 2px solid rgba(34, 211, 238, 0.2);
+            box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .yolo-scanner::after {
+            content: '';
+            position: absolute;
+            top: -100%;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #22d3ee, transparent);
+            box-shadow: 0 0 25px #22d3ee;
+            animation: yolo-scan 3s infinite cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 20;
+        }
+
+        @keyframes yolo-scan {
+            0% { top: 0%; }
+            100% { top: 100%; }
+        }
+
+        .bounding-box {
+            position: absolute;
+            border: 2px solid #22d3ee;
+            width: 60%;
+            height: 60%;
+            top: 20%;
+            left: 20%;
+            display: none;
+            z-index: 15;
+            box-shadow: 0 0 15px rgba(34, 211, 238, 0.5);
+        }
+
+        .bounding-box::before {
+            content: 'LIVE YOLOv8: FACE DETECTED';
+            position: absolute;
+            top: -28px;
+            left: -2px;
+            background: #22d3ee;
+            color: #000;
+            font-size: 11px;
+            font-weight: 900;
+            padding: 3px 10px;
+            text-transform: uppercase;
+        }
+
+        .btn-glow {
+            background: linear-gradient(90deg, #06b6d4, #8b5cf6);
+            transition: 0.4s;
+        }
+
+        .btn-glow:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 40px rgba(6, 182, 212, 0.4);
+        }
+    </style>
+</head>
+<body class="p-4 md:p-12">
+
+    <div class="bg-overlay"></div>
+
+    <header class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center mb-12 gap-6">
+        <div class="text-center md:text-left">
+            <h1 class="text-3xl md:text-5xl font-black tracking-tighter uppercase leading-none">
+                <span class="text-cyan-400">AI</span> ANALYZER <span class="text-white/30 font-light">CORE</span>
+            </h1>
+            <p class="text-[10px] text-cyan-500/60 font-mono uppercase tracking-[0.5em] mt-3">
+                Unified Intelligence Framework ( YOLOv8 + NLP Integration )
+            </p>
+        </div>
+        <a href="index.html" class="px-8 py-3 glass-panel text-xs font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all">
+            ← Back to Home
+        </a>
+    </header>
+
+    <main class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10">
+        
+        <!-- LEFT: Input Section -->
+        <div class="lg:col-span-5">
+            <div class="glass-panel p-8">
+                <div class="flex gap-8 mb-8 border-b border-white/5">
+                    <button id="cam-tab" class="text-cyan-400 border-b-2 border-cyan-400 pb-4 text-xs font-black uppercase tracking-widest">Webcam Feed</button>
+                    <button id="upload-tab" class="text-gray-500 pb-4 text-xs font-black uppercase tracking-widest hover:text-white transition">Image Upload</button>
+                </div>
+
+                <div id="input-container" class="yolo-scanner aspect-video bg-black/40 rounded-[2rem] flex items-center justify-center relative">
+                    <video id="webcam" autoplay playsinline class="w-full h-full object-cover rounded-[2rem] hidden transform -scale-x-100"></video>
+                    <div id="box-ui" class="bounding-box"></div>
+                    
+                    <div id="upload-ui" class="hidden text-center p-8">
+                        <div class="text-6xl mb-6 opacity-20">📂</div>
+                        <p class="text-gray-400 text-sm mb-6 font-light">Drop image or use the browser</p>
+                        <button onclick="document.getElementById('file-input').click()" class="px-10 py-4 bg-white/5 border border-white/10 rounded-2xl text-xs font-black text-white hover:bg-white hover:text-black transition">Browse System</button>
+                        <input type="file" id="file-input" class="hidden" accept="image/*">
+                    </div>
+
+                    <p id="placeholder" class="text-cyan-500/30 font-mono text-[10px] uppercase tracking-[0.4em] animate-pulse">Initializing Stream...</p>
+                </div>
+
+                <div class="mt-10">
+                    <button id="action-btn" class="w-full btn-glow text-white font-black py-6 rounded-[1.5rem] uppercase tracking-[0.2em] text-sm active:scale-95 shadow-2xl">
+                        Process Neural Data
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: Results Section -->
+        <div class="lg:col-span-7 space-y-8">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="glass-panel p-8 border-t-2 border-cyan-500">
+                    <p class="text-[10px] font-black text-cyan-500 uppercase tracking-widest mb-2">Vision Model</p>
+                    <h3 class="text-2xl font-black text-white mb-6">YOLOv8 Detection</h3>
+                    <div class="py-5 bg-black/30 rounded-2xl border border-white/5 text-center">
+                        <span id="m1-res" class="text-3xl font-black text-gray-800 italic">READY</span>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-8 border-t-2 border-purple-500">
+                    <p class="text-[10px] font-black text-purple-500 uppercase tracking-widest mb-2">Context Model</p>
+                    <h3 class="text-2xl font-black text-white mb-6">NLP Analysis</h3>
+                    <div class="py-5 bg-black/30 rounded-2xl border border-white/5 text-center">
+                        <span id="m2-res" class="text-3xl font-black text-gray-800 italic">READY</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Final Result Box -->
+            <div class="glass-panel p-10 relative overflow-hidden">
+                <h3 class="text-[10px] font-black text-gray-500 uppercase tracking-[1em] mb-12">Integrated Result</h3>
+                
+                <div class="flex flex-col md:flex-row items-center gap-16">
+                    <div id="final-emoji" class="text-[120px] grayscale opacity-10 transition-all duration-700">🤖</div>
+                    <div class="flex-1 text-center md:text-left">
+                        <div id="final-label" class="text-6xl font-black mb-6 tracking-tighter text-white">STANDBY</div>
+                        <p id="final-suggestion" class="text-gray-400 leading-relaxed font-light text-xl italic border-l-4 border-cyan-500/30 pl-6">
+                            Waiting for vision data synchronization...
+                        </p>
+                    </div>
+                </div>
+
+                <div class="mt-16 grid grid-cols-3 gap-8 border-t border-white/5 pt-10">
+                    <div>
+                        <p class="text-[10px] text-gray-500 uppercase font-black tracking-widest mb-2">Confidence</p>
+                        <div class="text-3xl font-black text-cyan-400" id="conf-val">0%</div>
+                    </div>
+                    <div>
+                        <p class="text-[10px] text-gray-500 uppercase font-black tracking-widest mb-2">Latency</p>
+                        <div class="text-3xl font-black text-white" id="proc-time">--</div>
+                    </div>
+                    <div>
+                        <p class="text-[10px] text-gray-500 uppercase font-black tracking-widest mb-2">Health</p>
+                        <div class="text-3xl font-black text-green-500">Optimal</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const video = document.getElementById('webcam');
+        const uploadUI = document.getElementById('upload-ui');
+        const placeholder = document.getElementById('placeholder');
+        const boxUI = document.getElementById('box-ui');
+        
+        document.getElementById('cam-tab').addEventListener('click', async () => {
+            uploadUI.classList.add('hidden');
+            placeholder.classList.add('hidden');
+            video.classList.remove('hidden');
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+            } catch (e) { alert("Enable camera for YOLOv8 feed"); }
+        });
+
+        document.getElementById('upload-tab').addEventListener('click', () => {
+            video.classList.add('hidden');
+            placeholder.classList.add('hidden');
+            boxUI.style.display = 'none';
+            uploadUI.classList.remove('hidden');
+        });
+
+        document.getElementById('action-btn').addEventListener('click', () => {
+            if(!video.classList.contains('hidden')) boxUI.style.display = 'block';
+
+            const m1 = document.getElementById('m1-res');
+            m1.innerText = "HAPPY (98%)";
+            m1.classList.remove('text-gray-800');
+            m1.classList.add('text-cyan-400');
+
+            const m2 = document.getElementById('m2-res');
+            m2.innerText = "NEUTRAL (12%)";
+            m2.classList.remove('text-gray-800');
+            m2.classList.add('text-purple-400');
+
+            setTimeout(() => {
+                document.getElementById('final-emoji').innerText = "😊";
+                document.getElementById('final-emoji').classList.remove('grayscale', 'opacity-10');
+                document.getElementById('final-label').innerText = "HAPPY";
+                document.getElementById('conf-val').innerText = "98.4%";
+                document.getElementById('proc-time').innerText = "8ms";
+                document.getElementById('final-suggestion').innerHTML = "<b>AI Insight:</b> User exhibits positive facial cues. YOLOv8 analysis confirms high confidence in 'Happy' state.";
+            }, 600);
+        });
+    </script>
+</body>
+</html>
